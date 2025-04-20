@@ -32,8 +32,6 @@ document.getElementById('cracker-form').addEventListener('submit', function (e) 
         formData.append('file', fileInput.files[i]);
     }
 
-    console.log("Invio i seguenti dati:", password, hashAlgorithm, fileInput.files);
-
     fetch('/crack', {
         method: 'POST',
         body: formData
