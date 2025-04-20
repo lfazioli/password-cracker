@@ -166,9 +166,6 @@ def download_csv():
     return send_file(csv_path, as_attachment=True)
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
-else:
     # Per Vercel
     from mangum import Mangum
     handler = Mangum(app)
