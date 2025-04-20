@@ -1,0 +1,107 @@
+body {
+    margin: 0;
+    background-color: #0f0f0f;
+    color: #00ff00;
+    font-family: "Courier New", Courier, monospace;
+}
+
+.terminal {
+    max-width: 800px;
+    margin: 50px auto;
+    background-color: #111;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px #00ff00;
+}
+
+h1 {
+    color: #00ff00;
+    text-shadow: 0 0 5px #00ff00;
+    text-align: center;
+}
+
+input, select, button {
+    padding: 10px;
+    font-size: 1em;
+    background-color: #222;
+    color: #00ff00;
+    border: 1px solid #00ff00;
+    border-radius: 5px;
+    margin-top: 10px;
+    display: block;
+    width: 100%;
+}
+
+button:hover {
+    background-color: #00ff00;
+    color: #111;
+    cursor: pointer;
+}
+
+form {
+    margin-bottom: 30px;
+}
+
+.result {
+    margin-top: 20px;
+    background-color: #000;
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid #00ff00;
+    white-space: pre-wrap;
+}
+
+#progress-bar {
+    width: 100%;
+    background-color: #222;
+    border: 1px solid #00ff00;
+    height: 20px;
+    margin-top: 20px;
+    border-radius: 5px;
+    overflow: hidden;
+    display: block;
+}
+
+#progress-fill {
+    height: 100%;
+    width: 0%;
+    background-color: #00ff00;
+    transition: width 0.2s ease-in-out;
+}
+
+canvas {
+    background-color: #000;
+    padding: 10px;
+    margin-top: 20px;
+    border: 1px solid #00ff00;
+    border-radius: 10px;
+}
+
+.download-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.download-buttons button {
+    flex: 1;
+}
+
+.hidden {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    .terminal {
+        padding: 20px;
+    }
+
+  /*  canvas {
+        width: 50% !important;
+        max-width: 100px;
+        height: auto !important;
+        margin: 0 auto;
+    
+    }*/
+}
+

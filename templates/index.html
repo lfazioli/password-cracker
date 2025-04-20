@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Password Cracker</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>🔓 Password Cracker</h1>
+
+    <form id="cracker-form">
+        <label>Password da trovare:</label><br>
+        <input type="text" id="password" name="password" required><br>
+
+        <label>Algoritmo di hash:</label><br>
+        <select id="hash_algorithm" name="hash_algorithm" required>
+            <option value="md5">MD5</option>
+            <option value="sha1">SHA1</option>
+            <option value="sha256" selected>SHA256</option>
+            <option value="sha512">SHA512</option>
+            <option value="blake2b">BLAKE2b</option>
+            <option value="blake2s">BLAKE2s</option>
+    
+        </select><br>
+
+        <label>File di password (.txt, .zip, .tar.gz):</label><br>
+        <input type="file" id="file" name="file" multiple required><br>
+
+        <button type="submit" id="submitButton">Avvia Cracking</button>
+    </form>
+
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+
+    <p id="status"></p>
+    <p id="results"></p>
+
+    <canvas id="crackChart" width="300" height="150"></canvas>
+    <canvas id="pieChart" width="200" height="150"></canvas>
+
+    <button id="downloadJSON">Scarica JSON</button>
+    <button id="downloadCSV">Scarica CSV</button>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
