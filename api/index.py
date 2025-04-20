@@ -86,7 +86,11 @@ def generate(target_password, passwords, hash_algorithm):
     for i, word in enumerate(passwords):
         hashed = hash_password(word, hash_algorithm)
         percent = int((i + 1) / total * 100)
+
+        # Aggiungi un log per il debug
+        print(f"Generato evento di progresso: {percent}%")  # Log evento progresso
         yield f"data:progress:{percent}\n\n"
+
         if hashed == target_hash:
             total_time = time.time() - start_time
             avg_time = total_time / (i + 1)
@@ -98,6 +102,10 @@ def generate(target_password, passwords, hash_algorithm):
                 "total_time": round(total_time, 4),
                 "avg_time": round(avg_time, 6)
             }
+
+            # Log evento trovato
+            print(f"Password trovata: {word}")  # Log evento password trovata
+
             save_stats(stats)
             yield f"data:stats:{json.dumps(stats)}\n\n"
             break
@@ -113,8 +121,12 @@ def generate(target_password, passwords, hash_algorithm):
             "total_time": round(total_time, 4),
             "avg_time": round(avg_time, 6)
         }
+
+        # Log evento non trovato
+        print(f"Password non trovata")  # Log evento password non trovata
         save_stats(stats)
         yield f"data:stats:{json.dumps(stats)}\n\n"
+
 
 
 @app.route('/')

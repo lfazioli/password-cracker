@@ -1,8 +1,3 @@
-let crackChart = null;
-let pieChart = null;
-let tries = [];
-let times = [];
-
 document.getElementById('cracker-form').addEventListener('submit', function (e) {
     e.preventDefault();
 
@@ -45,6 +40,7 @@ document.getElementById('cracker-form').addEventListener('submit', function (e) 
             reader.read().then(({ done, value }) => {
                 if (done) {
                     submitButton.disabled = false;
+                    console.log("Ricevuto tutto!");
                     return;
                 }
 
@@ -54,10 +50,12 @@ document.getElementById('cracker-form').addEventListener('submit', function (e) 
                 for (let event of events) {
                     if (event.startsWith('data:')) {
                         const content = event.replace('data:', '');
+                        console.log("Evento ricevuto:", content); // Aggiunto log
 
                         if (content.startsWith('progress:')) {
                             const percent = content.split(':')[1];
                             progressBar.style.width = percent + '%';
+                            console.log(`Progresso: ${percent}%`); // Aggiunto log
 
                             if (pieChart) pieChart.destroy();
                             pieChart = new Chart(pieChartCanvas, {
@@ -75,11 +73,11 @@ document.getElementById('cracker-form').addEventListener('submit', function (e) 
                         if (content.startsWith('stats:')) {
                             const json = content.replace('stats:', '');
                             const stats = JSON.parse(json);
+                            console.log("Statistica ricevuta:", stats); // Aggiunto log
 
                             tries.push(stats.tries);
                             times.push(stats.avg_time);
 
-                            // Colori per il grafico a torta finale
                             let pieData, pieColors;
 
                             if (stats.status === "found") {
@@ -103,7 +101,6 @@ document.getElementById('cracker-form').addEventListener('submit', function (e) 
                                 }
                             });
 
-                            // Mostra risultato
                             if (stats.status === "found") {
                                 resultBox.innerHTML = `
                                     ✅ <strong>Password trovata:</strong> ${stats.password}<br>
@@ -115,14 +112,13 @@ document.getElementById('cracker-form').addEventListener('submit', function (e) 
                             } else {
                                 resultBox.innerHTML = `
                                     ❌ <strong>Password non trovata</strong><br>
-                                      🔣 Password codificata: ${stats.passwordc}<br>
+                                    🔣 Password codificata: ${stats.passwordc}<br>
                                     🔁 Tentativi: ${stats.tries}<br>
                                     ⏱️ Tempo totale: ${stats.total_time}s<br>
                                     ⚙️ Tempo medio per tentativo: ${stats.avg_time}s
                                 `;
                             }
 
-                            // Line chart
                             if (crackChart) crackChart.destroy();
                             crackChart = new Chart(crackChartCanvas, {
                                 type: 'line',
@@ -151,13 +147,4 @@ document.getElementById('cracker-form').addEventListener('submit', function (e) 
     }).finally(() => {
         submitButton.disabled = false;
     });
-});
-
-// 🎯 Download da endpoint Flask
-document.getElementById('downloadJSON').addEventListener('click', () => {
-    window.location.href = '/download/json';
-});
-
-document.getElementById('downloadCSV').addEventListener('click', () => {
-    window.location.href = '/download/csv';
 });
