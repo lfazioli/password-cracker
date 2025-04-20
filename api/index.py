@@ -166,7 +166,6 @@ def download_csv():
     return send_file(csv_path, as_attachment=True)
 
 
-    # Per Vercel
-    from mangum import Mangum
-    handler = Mangum(app)
-
+# Per Vercel
+from mangum import Mangum
+handler = Mangum(app)
