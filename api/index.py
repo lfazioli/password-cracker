@@ -11,6 +11,7 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__, template_folder="../templates", static_folder="../public")
 app.config['UPLOAD_FOLDER'] = tempfile.gettempdir()
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024
 
 
 def hash_password(password, algorithm='sha256'):
