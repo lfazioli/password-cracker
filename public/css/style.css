@@ -136,3 +136,7 @@ canvas {
     display: none;
 }
 
+.box-download{
+    align-items: center;
+    justify-content: center;
+}
