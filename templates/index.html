@@ -33,11 +33,22 @@
     <p id="status"></p>
     <p id="results"></p>
 
-    <canvas id="crackChart" width="300" height="150"></canvas>
-    <canvas id="pieChart" width="200" height="150"></canvas>
+    <!-- Box per i grafici, nascosti inizialmente -->
+    <div class="box-graphic" style="display: none;">
+        <div class="box-time" ">
+            <canvas id="crackChart"></canvas>
+        </div>
+        <div class="box-circle" ">
+            <canvas id="pieChart"></canvas>
+        </div>
+    </div>
 
-    <button id="downloadJSON">Scarica JSON</button>
-    <button id="downloadCSV">Scarica CSV</button>
+    <!-- Box per i bottoni di download, nascosti inizialmente -->
+    <div class="box-download" style="display: none;">
+        <button id="downloadJSON">Scarica JSON</button>
+        <button id="downloadCSV">Scarica CSV</button>
+    </div>
+
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 

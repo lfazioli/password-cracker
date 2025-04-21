@@ -1,5 +1,5 @@
 body {
-    margin: 0;
+    margin: 3px;
     background-color: #0f0f0f;
     color: #00ff00;
     font-family: "Courier New", Courier, monospace;
@@ -29,7 +29,7 @@ input, select, button {
     border-radius: 5px;
     margin-top: 10px;
     display: block;
-    width: 100%;
+    width: 400px;
 }
 
 button:hover {
@@ -77,6 +77,7 @@ canvas {
     border-radius: 10px;
 }
 
+
 .download-buttons {
     display: flex;
     gap: 10px;
@@ -103,5 +104,35 @@ canvas {
         margin: 0 auto;
     
     }*/
+}
+
+
+/* Contenitore principale per i grafici */
+.box-graphic {
+    display: flex;               /* Usa Flexbox per allineare i div orizzontalmente */
+    justify-content: space-between; /* Spazio tra i box, puoi anche usare 'gap' per distanza uniforme */
+    gap: 10px;                   /* Aggiungi uno spazio di 10px tra i box */
+    align-items: center;         /* Allinea i box al centro (verticalmente) */
+}
+
+/* Stili per ogni box */
+.box-time, .box-circle {
+    display: flex;              /* Aggiungi flexbox per allineare i canvas */
+    justify-content: center;    /* Allinea i canvas al centro del div */
+    align-items: center;        /* Allinea i canvas verticalmente */
+    width: 49%;                 /* Ogni box occuperà il 48% della larghezza */
+    height: 650px;              /* Altezza fissa per i box */
+    padding: 10px;              /* Aggiungi del padding se vuoi margini interni */
+    box-sizing: border-box;     /* Assicurati che il padding non faccia superare la larghezza totale */
+}
+
+/* Canvas */
+canvas {
+    width: 100% !important;     /* Assicurati che i canvas riempiano completamente i box */
+    height: 100% !important;    /* Assicurati che i canvas riempiano completamente i box */
+}
+/* Nascosto per default */
+.box-graphic, .box-download {
+    display: none;
 }
 

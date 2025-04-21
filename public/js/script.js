@@ -25,6 +25,10 @@ document.getElementById('cracker-form').addEventListener('submit', function (e) 
     if (crackChart) crackChart.destroy();
     if (pieChart) pieChart.destroy();
 
+    // Nascondi i grafici e i bottoni di download prima
+    document.querySelector('.box-graphic').style.display = 'none';
+    document.querySelector('.box-download').style.display = 'none';
+
     const formData = new FormData();
     formData.append('password', password);
     formData.append('hash_algorithm', hashAlgorithm);
@@ -135,6 +139,10 @@ document.getElementById('cracker-form').addEventListener('submit', function (e) 
                                     }]
                                 }
                             });
+
+                            // Rendi visibili i grafici e i bottoni di download
+                            document.querySelector('.box-graphic').style.display = 'flex';
+                            document.querySelector('.box-download').style.display = 'block';
                         }
                     }
                 }
