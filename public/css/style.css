@@ -139,7 +139,7 @@ canvas {
 /* Box per i bottoni di download */
 .box-download {
     position: fixed; /* Posiziona i bottoni in basso a sinistra o in basso al centro */
-    left: 50%;
+    right: 50%;
    
     
 }
