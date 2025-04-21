@@ -136,7 +136,30 @@ canvas {
     display: none;
 }
 
-.box-download{
-    align-items: center;
-    justify-content: center;
+/* Box per i bottoni di download */
+.box-download {
+    position: fixed; /* Posiziona i bottoni in basso a sinistra o in basso al centro */
+    bottom: 20px; /* Aggiungi uno spazio dalla parte inferiore della pagina */
+    left: 50%; /* Centra orizzontalmente */
+    transform: translateX(-50%); /* Allinea il centro esatto */
+    display: flex;
+    gap: 10px; /* Distanza tra i bottoni */
+    justify-content: center; /* Centra i bottoni */
+    width: auto;
+}
+
+/* Se vuoi aggiungere uno stile ai bottoni */
+.box-download button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: 2px solid #333;
+    border-radius: 5px;
+    background-color: #f1f1f1;
+    transition: background-color 0.3s ease;
+}
+
+.box-download button:hover {
+    background-color: #4CAF50;
+    color: white;
 }
