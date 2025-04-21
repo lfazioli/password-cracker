@@ -136,10 +136,3 @@ canvas {
     display: none;
 }
 
-/* Box per i bottoni di download */
-.box-download {
-    position: fixed; /* Posiziona i bottoni in basso a sinistra o in basso al centro */
-
-   
-    
-}
