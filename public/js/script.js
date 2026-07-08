@@ -3,6 +3,84 @@ let pieChart = null;
 let tries = [];
 let times = [];
 
+const statusConsole = document.getElementById('status');
+const progressPercentLabel = document.getElementById('progress-percent');
+
+function logLine(text, cls) {
+    const line = document.createElement('span');
+    line.className = 'line' + (cls ? ' ' + cls : '');
+    line.textContent = text;
+    statusConsole.appendChild(line);
+    statusConsole.scrollTop = statusConsole.scrollHeight;
+}
+
+function clearConsole() {
+    statusConsole.innerHTML = '';
+}
+
+/* ---------- Dropzone ---------- */
+
+const dropzone = document.getElementById('dropzone');
+const fileInputEl = document.getElementById('file');
+const dzFiles = document.getElementById('dz-files');
+
+function renderFileNames() {
+    if (fileInputEl.files.length === 0) {
+        dzFiles.textContent = '';
+        return;
+    }
+    const names = Array.from(fileInputEl.files).map(f => f.name);
+    dzFiles.textContent = names.join(', ');
+}
+
+fileInputEl.addEventListener('change', renderFileNames);
+
+['dragenter', 'dragover'].forEach(evt => {
+    dropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+    });
+});
+
+['dragleave', 'drop'].forEach(evt => {
+    dropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+    });
+});
+
+dropzone.addEventListener('drop', (e) => {
+    if (e.dataTransfer.files.length) {
+        fileInputEl.files = e.dataTransfer.files;
+        renderFileNames();
+    }
+});
+
+/* ---------- Chart theme ---------- */
+
+const CHART_COLORS = {
+    accent: '#2fd9c7',
+    accentDim: 'rgba(47, 217, 199, 0.15)',
+    warn: '#ffb020',
+    danger: '#ff5f6d',
+    grid: 'rgba(139, 147, 165, 0.15)',
+    text: '#8b93a5'
+};
+
+function baseChartOptions(extra) {
+    return Object.assign({
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                labels: { color: CHART_COLORS.text, font: { family: 'Inter', size: 11 } }
+            }
+        }
+    }, extra || {});
+}
+
+/* ---------- Form submit ---------- */
+
 document.getElementById('cracker-form').addEventListener('submit', function (e) {
     e.preventDefault();
 
@@ -17,15 +95,20 @@ document.getElementById('cracker-form').addEventListener('submit', function (e) 
 
     // Reset
     submitButton.disabled = true;
+    submitButton.textContent = 'Cracking in corso…';
     resultBox.innerHTML = '';
+    resultBox.classList.remove('not-found');
     progressBar.style.width = '0%';
+    progressPercentLabel.textContent = '0%';
     tries = [];
     times = [];
+    clearConsole();
+    logLine('> avvio simulazione — algoritmo ' + hashAlgorithm.toUpperCase());
+    logLine('> estrazione dizionario dai file caricati…');
 
     if (crackChart) crackChart.destroy();
     if (pieChart) pieChart.destroy();
 
-    // Nascondi i grafici e i bottoni di download prima
     document.querySelector('.box-graphic').style.display = 'none';
     document.querySelector('.box-download').style.display = 'none';
 
@@ -35,6 +118,8 @@ document.getElementById('cracker-form').addEventListener('submit', function (e) 
     for (let i = 0; i < fileInput.files.length; i++) {
         formData.append('file', fileInput.files[i]);
     }
+
+    let loggedStart = false;
 
     fetch('/crack', {
         method: 'POST',
@@ -47,6 +132,7 @@ document.getElementById('cracker-form').addEventListener('submit', function (e) 
             reader.read().then(({ done, value }) => {
                 if (done) {
                     submitButton.disabled = false;
+                    submitButton.textContent = 'Avvia cracking';
                     return;
                 }
 
@@ -58,19 +144,26 @@ document.getElementById('cracker-form').addEventListener('submit', function (e) 
                         const content = event.replace('data:', '');
 
                         if (content.startsWith('progress:')) {
+                            if (!loggedStart) {
+                                logLine('> confronto hash in corso…');
+                                loggedStart = true;
+                            }
                             const percent = content.split(':')[1];
                             progressBar.style.width = percent + '%';
+                            progressPercentLabel.textContent = percent + '%';
 
                             if (pieChart) pieChart.destroy();
                             pieChart = new Chart(pieChartCanvas, {
                                 type: 'doughnut',
                                 data: {
-                                    labels: ['Fatto', 'Rimanente'],
+                                    labels: ['Completato', 'Rimanente'],
                                     datasets: [{
                                         data: [parseInt(percent), 100 - parseInt(percent)],
-                                        backgroundColor: ['lime', 'gray']
+                                        backgroundColor: [CHART_COLORS.accent, 'rgba(139,147,165,0.15)'],
+                                        borderWidth: 0
                                     }]
-                                }
+                                },
+                                options: baseChartOptions()
                             });
                         }
 
@@ -81,50 +174,55 @@ document.getElementById('cracker-form').addEventListener('submit', function (e) 
                             tries.push(stats.tries);
                             times.push(stats.avg_time);
 
-                            // Colori per il grafico a torta finale
                             let pieData, pieColors;
 
                             if (stats.status === "found") {
                                 pieData = [100, 0];
-                                pieColors = ['lime', 'gray'];
+                                pieColors = [CHART_COLORS.accent, 'rgba(139,147,165,0.15)'];
+                                logLine('> password trovata dopo ' + stats.tries + ' tentativi', 'ok');
                             } else {
                                 pieData = [0, 100];
-                                pieColors = ['red', 'gray'];
+                                pieColors = [CHART_COLORS.danger, 'rgba(139,147,165,0.15)'];
+                                logLine('> nessuna corrispondenza nel dizionario (' + stats.tries + ' tentativi)', 'warn');
                             }
 
                             progressBar.style.width = '100%';
+                            progressPercentLabel.textContent = '100%';
+
                             if (pieChart) pieChart.destroy();
                             pieChart = new Chart(pieChartCanvas, {
                                 type: 'doughnut',
                                 data: {
-                                    labels: ['Fatto', 'Rimanente'],
+                                    labels: ['Completato', 'Rimanente'],
                                     datasets: [{
                                         data: pieData,
-                                        backgroundColor: pieColors
+                                        backgroundColor: pieColors,
+                                        borderWidth: 0
                                     }]
-                                }
+                                },
+                                options: baseChartOptions()
                             });
 
-                            // Mostra risultato
                             if (stats.status === "found") {
+                                resultBox.classList.remove('not-found');
                                 resultBox.innerHTML = `
-                                    ✅ <strong>Password trovata:</strong> ${stats.password}<br>
-                                    🔣 Password codificata: ${stats.passwordc}<br>
-                                    🔁 Tentativi: ${stats.tries}<br>
-                                    ⏱️ Tempo totale: ${stats.total_time}s<br>
-                                    ⚙️ Tempo medio per tentativo: ${stats.avg_time}s
+                                    <strong>✓ Password trovata:</strong> ${stats.password}<br>
+                                    Hash: ${stats.passwordc}<br>
+                                    Tentativi: ${stats.tries}<br>
+                                    Tempo totale: ${stats.total_time}s<br>
+                                    Tempo medio/tentativo: ${stats.avg_time}s
                                 `;
                             } else {
+                                resultBox.classList.add('not-found');
                                 resultBox.innerHTML = `
-                                    ❌ <strong>Password non trovata</strong><br>
-                                      🔣 Password codificata: ${stats.passwordc}<br>
-                                    🔁 Tentativi: ${stats.tries}<br>
-                                    ⏱️ Tempo totale: ${stats.total_time}s<br>
-                                    ⚙️ Tempo medio per tentativo: ${stats.avg_time}s
+                                    <strong>✗ Password non trovata</strong><br>
+                                    Hash cercato: ${stats.passwordc}<br>
+                                    Tentativi: ${stats.tries}<br>
+                                    Tempo totale: ${stats.total_time}s<br>
+                                    Tempo medio/tentativo: ${stats.avg_time}s
                                 `;
                             }
 
-                            // Line chart
                             if (crackChart) crackChart.destroy();
                             crackChart = new Chart(crackChartCanvas, {
                                 type: 'line',
@@ -133,16 +231,23 @@ document.getElementById('cracker-form').addEventListener('submit', function (e) 
                                     datasets: [{
                                         label: 'Tempo medio per tentativo',
                                         data: times,
-                                        borderColor: 'lime',
+                                        borderColor: CHART_COLORS.accent,
+                                        backgroundColor: CHART_COLORS.accentDim,
                                         borderWidth: 2,
-                                        fill: false
+                                        fill: true,
+                                        tension: 0.3
                                     }]
-                                }
+                                },
+                                options: baseChartOptions({
+                                    scales: {
+                                        x: { ticks: { color: CHART_COLORS.text }, grid: { color: CHART_COLORS.grid } },
+                                        y: { ticks: { color: CHART_COLORS.text }, grid: { color: CHART_COLORS.grid } }
+                                    }
+                                })
                             });
 
-                            // Rendi visibili i grafici e i bottoni di download
                             document.querySelector('.box-graphic').style.display = 'flex';
-                            document.querySelector('.box-download').style.display = 'block';
+                            document.querySelector('.box-download').style.display = 'flex';
                         }
                     }
                 }
@@ -153,13 +258,16 @@ document.getElementById('cracker-form').addEventListener('submit', function (e) 
 
         read();
     }).catch((error) => {
+        logLine('> errore: ' + error.message, 'warn');
+        resultBox.classList.add('not-found');
         resultBox.innerHTML = `<strong>Errore durante il cracking!</strong><br>Dettagli: ${error.message}`;
     }).finally(() => {
         submitButton.disabled = false;
+        submitButton.textContent = 'Avvia cracking';
     });
 });
 
-// 🎯 Download da endpoint Flask
+// Download da endpoint Flask
 document.getElementById('downloadJSON').addEventListener('click', () => {
     window.location.href = '/download/json';
 });

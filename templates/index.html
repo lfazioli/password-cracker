@@ -2,55 +2,105 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Password Cracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Password Cracker — Simulazione</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h1>🔓 Password Cracker</h1>
+    <div class="wrap">
 
-    <form id="cracker-form">
-        <label>Password da trovare:</label><br>
-        <input type="text" id="password" name="password" required><br>
+        <header class="app-header">
+            <div class="title-block">
+                <span class="glyph" aria-hidden="true">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                        <rect x="5" y="11" width="14" height="9" rx="2" stroke="currentColor" stroke-width="1.6"/>
+                        <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" stroke-width="1.6"/>
+                        <circle cx="12" cy="15.5" r="1.4" fill="currentColor"/>
+                    </svg>
+                </span>
+                <div>
+                    <h1>Password Cracker</h1>
+                    <p>attacco a dizionario — analisi tempo/tentativi</p>
+                </div>
+            </div>
+            <span class="badge">Solo simulazione</span>
+        </header>
 
-        <label>Algoritmo di hash:</label><br>
-        <select id="hash_algorithm" name="hash_algorithm" required>
-            <option value="md5">MD5</option>
-            <option value="sha1">SHA1</option>
-            <option value="sha256" selected>SHA256</option>
-            <option value="sha512">SHA512</option>
-            <option value="blake2b">BLAKE2b</option>
-            <option value="blake2s">BLAKE2s</option>
-        </select><br>
+        <section class="panel">
+            <p class="panel-label">Parametri</p>
+            <form id="cracker-form">
 
-        <label>File di password (.txt, .zip, .tar.gz):</label><br>
-        <input type="file" id="file" name="file" multiple required><br>
+                <div class="field">
+                    <label for="password">Password da trovare</label>
+                    <input type="text" id="password" name="password" placeholder="es. superSegreta123" required autocomplete="off">
+                </div>
 
-        <button type="submit" id="submitButton">Avvia Cracking</button>
-    </form>
+                <div class="field-row">
+                    <div class="field">
+                        <label for="hash_algorithm">Algoritmo di hash</label>
+                        <select id="hash_algorithm" name="hash_algorithm" required>
+                            <option value="md5">MD5</option>
+                            <option value="sha1">SHA1</option>
+                            <option value="sha256" selected>SHA256</option>
+                            <option value="sha512">SHA512</option>
+                            <option value="blake2b">BLAKE2b</option>
+                            <option value="blake2s">BLAKE2s</option>
+                        </select>
+                    </div>
 
-    <div id="progress-bar"><div id="progress-fill"></div></div>
+                    <div class="field">
+                        <label for="file">Dizionario (.txt, .zip, .tar.gz)</label>
+                        <div class="dropzone" id="dropzone">
+                            <input type="file" id="file" name="file" multiple required>
+                            <div class="dz-title">Trascina i file qui o clicca per sceglierli</div>
+                            <div class="dz-hint">.txt · .zip · .tar.gz</div>
+                            <div class="dz-files" id="dz-files"></div>
+                        </div>
+                    </div>
+                </div>
 
-    <p id="status"></p>
-    <p id="results"></p>
+                <button type="submit" id="submitButton">Avvia cracking</button>
+            </form>
+        </section>
 
-    <!-- Box per i grafici, nascosti inizialmente -->
-    <div class="box-graphic" style="display: none;">
-        <div class="box-time" ">
-            <canvas id="crackChart"></canvas>
+        <section class="panel">
+            <p class="panel-label">Console</p>
+            <div class="console" id="status"></div>
+
+            <div class="progress-shell">
+                <div class="progress-meta">
+                    <span id="progress-label">Progresso</span>
+                    <span id="progress-percent">0%</span>
+                </div>
+                <div id="progress-bar"><div id="progress-fill"></div></div>
+            </div>
+
+            <p id="results"></p>
+        </section>
+
+        <section class="panel box-graphic" style="display: none;">
+            <div class="box-time">
+                <canvas id="crackChart"></canvas>
+            </div>
+            <div class="box-circle">
+                <canvas id="pieChart"></canvas>
+            </div>
+        </section>
+
+        <div class="box-download" style="display: none;">
+            <button id="downloadJSON">Scarica JSON</button>
+            <button id="downloadCSV">Scarica CSV</button>
         </div>
-        <div class="box-circle" ">
-            <canvas id="pieChart"></canvas>
-        </div>
+
+        <footer class="app-footer">
+            Nessuna password reale viene violata: l'hash e il dizionario restano nella richiesta corrente.
+        </footer>
     </div>
 
-    <!-- Box per i bottoni di download, nascosti inizialmente -->
-    <div class="box-download" style="display: none;">
-        <button id="downloadJSON">Scarica JSON</button>
-        <button id="downloadCSV">Scarica CSV</button>
-    </div>
-
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

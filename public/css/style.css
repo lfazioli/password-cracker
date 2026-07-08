@@ -1,138 +1,460 @@
+/* ==========================================================================
+   Password Cracker — Simulation Console
+   Palette: graphite base, signal-cyan + amber dual accent (dashboard, not
+   "hacker green terminal"). Space Grotesk for display, Inter for UI text,
+   JetBrains Mono for anything that reads as data/log output.
+   ========================================================================== */
+
+:root {
+  --bg: #0a0d12;
+  --bg-panel: #12161d;
+  --bg-panel-alt: #171c26;
+  --bg-inset: #0d1017;
+  --border: #232a37;
+  --border-soft: #1a2029;
+
+  --text: #e8ebf1;
+  --text-muted: #8b93a5;
+  --text-faint: #565f70;
+
+  --accent: #2fd9c7;        /* signal cyan-teal — primary */
+  --accent-dim: #1c8f83;
+  --accent-soft: rgba(47, 217, 199, 0.12);
+
+  --warn: #ffb020;          /* amber — "found" / attention */
+  --warn-soft: rgba(255, 176, 32, 0.14);
+
+  --danger: #ff5f6d;
+  --danger-soft: rgba(255, 95, 109, 0.12);
+
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+
+  --font-display: "Space Grotesk", "Inter", sans-serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "JetBrains Mono", "Courier New", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
-    margin: 3px;
-    background-color: #0f0f0f;
-    color: #00ff00;
-    font-family: "Courier New", Courier, monospace;
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(47, 217, 199, 0.07), transparent 40%),
+    radial-gradient(circle at 85% 15%, rgba(255, 176, 32, 0.05), transparent 35%),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  padding: 48px 20px 64px;
+  line-height: 1.5;
 }
 
-.terminal {
-    max-width: 800px;
-    margin: 50px auto;
-    background-color: #111;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 0 20px #00ff00;
+.wrap {
+  max-width: 880px;
+  margin: 0 auto;
 }
 
-h1 {
-    color: #00ff00;
-    text-shadow: 0 0 5px #00ff00;
-    text-align: center;
+/* ---------- Header ---------- */
+
+.app-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-soft);
 }
 
-input, select, button {
-    padding: 10px;
-    font-size: 1em;
-    background-color: #222;
-    color: #00ff00;
-    border: 1px solid #00ff00;
-    border-radius: 5px;
-    margin-top: 10px;
-    display: block;
-    width: 400px;
+.app-header .title-block {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
-button:hover {
-    background-color: #00ff00;
-    color: #111;
-    cursor: pointer;
+.app-header .glyph {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  border: 1px solid rgba(47, 217, 199, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
 }
 
-form {
-    margin-bottom: 30px;
+.app-header h1 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--text);
 }
 
-.result {
-    margin-top: 20px;
-    background-color: #000;
-    padding: 15px;
-    border-radius: 5px;
-    border: 1px solid #00ff00;
-    white-space: pre-wrap;
+.app-header p {
+  margin: 2px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.badge {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--warn);
+  background: var(--warn-soft);
+  border: 1px solid rgba(255, 176, 32, 0.35);
+  padding: 6px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* ---------- Panels ---------- */
+
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.panel-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-label::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+/* ---------- Form ---------- */
+
+.field {
+  margin-bottom: 18px;
+}
+
+.field label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+input[type="text"],
+select {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  background: var(--bg-inset);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="text"]:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%238b93a5' stroke-width='1.5' fill='none' fill-rule='evenodd'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+/* Dropzone */
+
+.dropzone {
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius-md);
+  padding: 22px;
+  text-align: center;
+  cursor: pointer;
+  background: var(--bg-inset);
+  transition: border-color 0.15s ease, background 0.15s ease;
+  position: relative;
+}
+
+.dropzone:hover,
+.dropzone.dragover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.dropzone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.dropzone .dz-title {
+  font-size: 0.88rem;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.dropzone .dz-hint {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}
+
+.dropzone .dz-files {
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--accent);
+  word-break: break-all;
+}
+
+/* Submit button */
+
+button {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+#submitButton {
+  width: 100%;
+  margin-top: 4px;
+  padding: 14px;
+  background: var(--accent);
+  color: #05201c;
+  letter-spacing: 0.01em;
+}
+
+#submitButton:hover:not(:disabled) {
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+#submitButton:disabled {
+  background: var(--border);
+  color: var(--text-faint);
+  cursor: not-allowed;
+}
+
+/* ---------- Console / status log ---------- */
+
+.console {
+  background: var(--bg-inset);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  min-height: 20px;
+}
+
+.console:empty::before {
+  content: "In attesa di avvio\2026";
+  color: var(--text-faint);
+}
+
+.console .line {
+  display: block;
+}
+
+.console .line + .line {
+  margin-top: 4px;
+}
+
+.console .ok { color: var(--accent); }
+.console .warn { color: var(--warn); }
+
+/* Progress bar */
+
+.progress-shell {
+  margin-top: 14px;
+}
+
+.progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  margin-bottom: 6px;
 }
 
 #progress-bar {
-    width: 100%;
-    background-color: #222;
-    border: 1px solid #00ff00;
-    height: 20px;
-    margin-top: 20px;
-    border-radius: 5px;
-    overflow: hidden;
-    display: block;
+  width: 100%;
+  height: 8px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  overflow: hidden;
 }
 
 #progress-fill {
-    height: 100%;
-    width: 0%;
-    background-color: #00ff00;
-    transition: width 0.2s ease-in-out;
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+  transition: width 0.2s ease-in-out;
+}
+
+/* ---------- Results ---------- */
+
+#results:empty {
+  display: none;
+}
+
+#results {
+  margin-top: 18px;
+  padding: 18px 20px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.9;
+  background: var(--accent-soft);
+  border: 1px solid rgba(47, 217, 199, 0.3);
+  color: var(--text);
+}
+
+#results.not-found {
+  background: var(--danger-soft);
+  border-color: rgba(255, 95, 109, 0.3);
+}
+
+/* ---------- Telemetry / charts ---------- */
+
+.box-graphic {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.box-time,
+.box-circle {
+  flex: 1;
+  min-width: 0;
+  height: 280px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 canvas {
-    background-color: #000;
-    padding: 10px;
-    margin-top: 20px;
-    border: 1px solid #00ff00;
-    border-radius: 10px;
+  width: 100% !important;
+  height: 100% !important;
 }
 
+/* Download buttons */
 
-.download-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
+.box-download {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
 }
 
-.download-buttons button {
-    flex: 1;
+.box-download button {
+  flex: 1;
+  padding: 11px;
+  background: var(--bg-panel-alt);
+  color: var(--text);
+  border: 1px solid var(--border);
 }
+
+.box-download button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ---------- Footer ---------- */
+
+.app-footer {
+  margin-top: 32px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}
+
+/* ---------- Utility ---------- */
 
 .hidden {
-    display: none;
+  display: none !important;
 }
 
-@media (max-width: 600px) {
-    .terminal {
-        padding: 20px;
-    }
+/* ---------- Responsive ---------- */
 
-  /*  canvas {
-        width: 50% !important;
-        max-width: 100px;
-        height: auto !important;
-        margin: 0 auto;
-    
-    }*/
+@media (max-width: 640px) {
+  body {
+    padding: 28px 14px 48px;
+  }
+
+  .panel {
+    padding: 18px;
+  }
+
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+
+  .box-graphic {
+    flex-direction: column;
+  }
+
+  .box-time,
+  .box-circle {
+    height: 240px;
+  }
+
+  .app-header {
+    flex-direction: column;
+  }
 }
 
+/* ---------- Reduced motion ---------- */
 
-/* Contenitore principale per i grafici */
-.box-graphic {
-    display: flex;               /* Usa Flexbox per allineare i div orizzontalmente */
-    justify-content: space-between; /* Spazio tra i box, puoi anche usare 'gap' per distanza uniforme */
-    gap: 10px;                   /* Aggiungi uno spazio di 10px tra i box */
-    align-items: center;         /* Allinea i box al centro (verticalmente) */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
 }
-
-/* Stili per ogni box */
-.box-time, .box-circle {
-    display: flex;              /* Aggiungi flexbox per allineare i canvas */
-    justify-content: center;    /* Allinea i canvas al centro del div */
-    align-items: center;        /* Allinea i canvas verticalmente */
-    width: 49%;                 /* Ogni box occuperà il 48% della larghezza */
-    height: 650px;              /* Altezza fissa per i box */
-    padding: 10px;              /* Aggiungi del padding se vuoi margini interni */
-    box-sizing: border-box;     /* Assicurati che il padding non faccia superare la larghezza totale */
-}
-
-/* Canvas */
-canvas {
-    width: 100% !important;     /* Assicurati che i canvas riempiano completamente i box */
-    height: 100% !important;    /* Assicurati che i canvas riempiano completamente i box */
-}
-/* Nascosto per default */
-.box-graphic, .box-download {
-    display: none;
-}
-
