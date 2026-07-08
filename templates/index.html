@@ -1,3 +1,6 @@
+
+
+Index · HTML
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -7,12 +10,473 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-   <link rel="stylesheet" href="{{ url_for('static', filename='public/css/style.css') }}">
-   <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <style>
+/* ==========================================================================
+   Password Cracker — Simulation Console
+   Palette: graphite base, signal-cyan + amber dual accent (dashboard, not
+   "hacker green terminal"). Space Grotesk for display, Inter for UI text,
+   JetBrains Mono for anything that reads as data/log output.
+   ========================================================================== */
+ 
+:root {
+  --bg: #0a0d12;
+  --bg-panel: #12161d;
+  --bg-panel-alt: #171c26;
+  --bg-inset: #0d1017;
+  --border: #232a37;
+  --border-soft: #1a2029;
+ 
+  --text: #e8ebf1;
+  --text-muted: #8b93a5;
+  --text-faint: #565f70;
+ 
+  --accent: #2fd9c7;        /* signal cyan-teal — primary */
+  --accent-dim: #1c8f83;
+  --accent-soft: rgba(47, 217, 199, 0.12);
+ 
+  --warn: #ffb020;          /* amber — "found" / attention */
+  --warn-soft: rgba(255, 176, 32, 0.14);
+ 
+  --danger: #ff5f6d;
+  --danger-soft: rgba(255, 95, 109, 0.12);
+ 
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+ 
+  --font-display: "Space Grotesk", "Inter", sans-serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: "JetBrains Mono", "Courier New", monospace;
+}
+ 
+* {
+  box-sizing: border-box;
+}
+ 
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(47, 217, 199, 0.07), transparent 40%),
+    radial-gradient(circle at 85% 15%, rgba(255, 176, 32, 0.05), transparent 35%),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  padding: 48px 20px 64px;
+  line-height: 1.5;
+}
+ 
+.wrap {
+  max-width: 880px;
+  margin: 0 auto;
+}
+ 
+/* ---------- Header ---------- */
+ 
+.app-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-soft);
+}
+ 
+.app-header .title-block {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+ 
+.app-header .glyph {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  border: 1px solid rgba(47, 217, 199, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+}
+ 
+.app-header h1 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--text);
+}
+ 
+.app-header p {
+  margin: 2px 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+ 
+.badge {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--warn);
+  background: var(--warn-soft);
+  border: 1px solid rgba(255, 176, 32, 0.35);
+  padding: 6px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+ 
+/* ---------- Panels ---------- */
+ 
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+ 
+.panel-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+ 
+.panel-label::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+ 
+/* ---------- Form ---------- */
+ 
+.field {
+  margin-bottom: 18px;
+}
+ 
+.field label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+ 
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+ 
+input[type="text"],
+select {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  background: var(--bg-inset);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+ 
+input[type="text"]:focus,
+select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+ 
+select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' stroke='%238b93a5' stroke-width='1.5' fill='none' fill-rule='evenodd'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+ 
+/* Dropzone */
+ 
+.dropzone {
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius-md);
+  padding: 22px;
+  text-align: center;
+  cursor: pointer;
+  background: var(--bg-inset);
+  transition: border-color 0.15s ease, background 0.15s ease;
+  position: relative;
+}
+ 
+.dropzone:hover,
+.dropzone.dragover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+ 
+.dropzone input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+ 
+.dropzone .dz-title {
+  font-size: 0.88rem;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+ 
+.dropzone .dz-hint {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}
+ 
+.dropzone .dz-files {
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--accent);
+  word-break: break-all;
+}
+ 
+/* Submit button */
+ 
+button {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+ 
+#submitButton {
+  width: 100%;
+  margin-top: 4px;
+  padding: 14px;
+  background: var(--accent);
+  color: #05201c;
+  letter-spacing: 0.01em;
+}
+ 
+#submitButton:hover:not(:disabled) {
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+ 
+#submitButton:disabled {
+  background: var(--border);
+  color: var(--text-faint);
+  cursor: not-allowed;
+}
+ 
+/* ---------- Console / status log ---------- */
+ 
+.console {
+  background: var(--bg-inset);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  min-height: 20px;
+}
+ 
+.console:empty::before {
+  content: "In attesa di avvio6";
+  color: var(--text-faint);
+}
+ 
+.console .line {
+  display: block;
+}
+ 
+.console .line + .line {
+  margin-top: 4px;
+}
+ 
+.console .ok { color: var(--accent); }
+.console .warn { color: var(--warn); }
+ 
+/* Progress bar */
+ 
+.progress-shell {
+  margin-top: 14px;
+}
+ 
+.progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  margin-bottom: 6px;
+}
+ 
+#progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  overflow: hidden;
+}
+ 
+#progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+  transition: width 0.2s ease-in-out;
+}
+ 
+/* ---------- Results ---------- */
+ 
+#results:empty {
+  display: none;
+}
+ 
+#results {
+  margin-top: 18px;
+  padding: 18px 20px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.9;
+  background: var(--accent-soft);
+  border: 1px solid rgba(47, 217, 199, 0.3);
+  color: var(--text);
+}
+ 
+#results.not-found {
+  background: var(--danger-soft);
+  border-color: rgba(255, 95, 109, 0.3);
+}
+ 
+/* ---------- Telemetry / charts ---------- */
+ 
+.box-graphic {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+}
+ 
+.box-time,
+.box-circle {
+  flex: 1;
+  min-width: 0;
+  height: 280px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+ 
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+ 
+/* Download buttons */
+ 
+.box-download {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+ 
+.box-download button {
+  flex: 1;
+  padding: 11px;
+  background: var(--bg-panel-alt);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+ 
+.box-download button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+ 
+/* ---------- Footer ---------- */
+ 
+.app-footer {
+  margin-top: 32px;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-faint);
+}
+ 
+/* ---------- Utility ---------- */
+ 
+.hidden {
+  display: none !important;
+}
+ 
+/* ---------- Responsive ---------- */
+ 
+@media (max-width: 640px) {
+  body {
+    padding: 28px 14px 48px;
+  }
+ 
+  .panel {
+    padding: 18px;
+  }
+ 
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+ 
+  .box-graphic {
+    flex-direction: column;
+  }
+ 
+  .box-time,
+  .box-circle {
+    height: 240px;
+  }
+ 
+  .app-header {
+    flex-direction: column;
+  }
+}
+ 
+/* ---------- Reduced motion ---------- */
+ 
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+ 
+    </style>
 </head>
 <body>
     <div class="wrap">
-
+ 
         <header class="app-header">
             <div class="title-block">
                 <span class="glyph" aria-hidden="true">
@@ -29,16 +493,16 @@
             </div>
             <span class="badge">Solo simulazione</span>
         </header>
-
+ 
         <section class="panel">
             <p class="panel-label">Parametri</p>
             <form id="cracker-form">
-
+ 
                 <div class="field">
                     <label for="password">Password da trovare</label>
                     <input type="text" id="password" name="password" placeholder="es. superSegreta123" required autocomplete="off">
                 </div>
-
+ 
                 <div class="field-row">
                     <div class="field">
                         <label for="hash_algorithm">Algoritmo di hash</label>
@@ -51,7 +515,7 @@
                             <option value="blake2s">BLAKE2s</option>
                         </select>
                     </div>
-
+ 
                     <div class="field">
                         <label for="file">Dizionario (.txt, .zip, .tar.gz)</label>
                         <div class="dropzone" id="dropzone">
@@ -62,15 +526,15 @@
                         </div>
                     </div>
                 </div>
-
+ 
                 <button type="submit" id="submitButton">Avvia cracking</button>
             </form>
         </section>
-
+ 
         <section class="panel">
             <p class="panel-label">Console</p>
             <div class="console" id="status"></div>
-
+ 
             <div class="progress-shell">
                 <div class="progress-meta">
                     <span id="progress-label">Progresso</span>
@@ -78,10 +542,10 @@
                 </div>
                 <div id="progress-bar"><div id="progress-fill"></div></div>
             </div>
-
+ 
             <p id="results"></p>
         </section>
-
+ 
         <section class="panel box-graphic" style="display: none;">
             <div class="box-time">
                 <canvas id="crackChart"></canvas>
@@ -90,18 +554,299 @@
                 <canvas id="pieChart"></canvas>
             </div>
         </section>
-
+ 
         <div class="box-download" style="display: none;">
             <button id="downloadJSON">Scarica JSON</button>
             <button id="downloadCSV">Scarica CSV</button>
         </div>
-
+ 
         <footer class="app-footer">
             Nessuna password reale viene violata: l'hash e il dizionario restano nella richiesta corrente.
         </footer>
     </div>
-
+ 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+let crackChart = null;
+let pieChart = null;
+let tries = [];
+let times = [];
+ 
+const statusConsole = document.getElementById('status');
+const progressPercentLabel = document.getElementById('progress-percent');
+ 
+function logLine(text, cls) {
+    const line = document.createElement('span');
+    line.className = 'line' + (cls ? ' ' + cls : '');
+    line.textContent = text;
+    statusConsole.appendChild(line);
+    statusConsole.scrollTop = statusConsole.scrollHeight;
+}
+ 
+function clearConsole() {
+    statusConsole.innerHTML = '';
+}
+ 
+/* ---------- Dropzone ---------- */
+ 
+const dropzone = document.getElementById('dropzone');
+const fileInputEl = document.getElementById('file');
+const dzFiles = document.getElementById('dz-files');
+ 
+function renderFileNames() {
+    if (fileInputEl.files.length === 0) {
+        dzFiles.textContent = '';
+        return;
+    }
+    const names = Array.from(fileInputEl.files).map(f => f.name);
+    dzFiles.textContent = names.join(', ');
+}
+ 
+fileInputEl.addEventListener('change', renderFileNames);
+ 
+['dragenter', 'dragover'].forEach(evt => {
+    dropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+    });
+});
+ 
+['dragleave', 'drop'].forEach(evt => {
+    dropzone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+    });
+});
+ 
+dropzone.addEventListener('drop', (e) => {
+    if (e.dataTransfer.files.length) {
+        fileInputEl.files = e.dataTransfer.files;
+        renderFileNames();
+    }
+});
+ 
+/* ---------- Chart theme ---------- */
+ 
+const CHART_COLORS = {
+    accent: '#2fd9c7',
+    accentDim: 'rgba(47, 217, 199, 0.15)',
+    warn: '#ffb020',
+    danger: '#ff5f6d',
+    grid: 'rgba(139, 147, 165, 0.15)',
+    text: '#8b93a5'
+};
+ 
+function baseChartOptions(extra) {
+    return Object.assign({
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                labels: { color: CHART_COLORS.text, font: { family: 'Inter', size: 11 } }
+            }
+        }
+    }, extra || {});
+}
+ 
+/* ---------- Form submit ---------- */
+ 
+document.getElementById('cracker-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+ 
+    const password = document.getElementById('password').value;
+    const fileInput = document.getElementById('file');
+    const hashAlgorithm = document.getElementById('hash_algorithm').value;
+    const resultBox = document.getElementById('results');
+    const progressBar = document.getElementById('progress-fill');
+    const submitButton = document.getElementById('submitButton');
+    const crackChartCanvas = document.getElementById('crackChart').getContext('2d');
+    const pieChartCanvas = document.getElementById('pieChart').getContext('2d');
+ 
+    // Reset
+    submitButton.disabled = true;
+    submitButton.textContent = 'Cracking in corso…';
+    resultBox.innerHTML = '';
+    resultBox.classList.remove('not-found');
+    progressBar.style.width = '0%';
+    progressPercentLabel.textContent = '0%';
+    tries = [];
+    times = [];
+    clearConsole();
+    logLine('> avvio simulazione — algoritmo ' + hashAlgorithm.toUpperCase());
+    logLine('> estrazione dizionario dai file caricati…');
+ 
+    if (crackChart) crackChart.destroy();
+    if (pieChart) pieChart.destroy();
+ 
+    document.querySelector('.box-graphic').style.display = 'none';
+    document.querySelector('.box-download').style.display = 'none';
+ 
+    const formData = new FormData();
+    formData.append('password', password);
+    formData.append('hash_algorithm', hashAlgorithm);
+    for (let i = 0; i < fileInput.files.length; i++) {
+        formData.append('file', fileInput.files[i]);
+    }
+ 
+    let loggedStart = false;
+ 
+    fetch('/crack', {
+        method: 'POST',
+        body: formData
+    }).then(response => {
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+ 
+        function read() {
+            reader.read().then(({ done, value }) => {
+                if (done) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Avvia cracking';
+                    return;
+                }
+ 
+                const text = decoder.decode(value, { stream: true });
+                const events = text.split('
+ 
+');
+ 
+                for (let event of events) {
+                    if (event.startsWith('data:')) {
+                        const content = event.replace('data:', '');
+ 
+                        if (content.startsWith('progress:')) {
+                            if (!loggedStart) {
+                                logLine('> confronto hash in corso…');
+                                loggedStart = true;
+                            }
+                            const percent = content.split(':')[1];
+                            progressBar.style.width = percent + '%';
+                            progressPercentLabel.textContent = percent + '%';
+ 
+                            if (pieChart) pieChart.destroy();
+                            pieChart = new Chart(pieChartCanvas, {
+                                type: 'doughnut',
+                                data: {
+                                    labels: ['Completato', 'Rimanente'],
+                                    datasets: [{
+                                        data: [parseInt(percent), 100 - parseInt(percent)],
+                                        backgroundColor: [CHART_COLORS.accent, 'rgba(139,147,165,0.15)'],
+                                        borderWidth: 0
+                                    }]
+                                },
+                                options: baseChartOptions()
+                            });
+                        }
+ 
+                        if (content.startsWith('stats:')) {
+                            const json = content.replace('stats:', '');
+                            const stats = JSON.parse(json);
+ 
+                            tries.push(stats.tries);
+                            times.push(stats.avg_time);
+ 
+                            let pieData, pieColors;
+ 
+                            if (stats.status === "found") {
+                                pieData = [100, 0];
+                                pieColors = [CHART_COLORS.accent, 'rgba(139,147,165,0.15)'];
+                                logLine('> password trovata dopo ' + stats.tries + ' tentativi', 'ok');
+                            } else {
+                                pieData = [0, 100];
+                                pieColors = [CHART_COLORS.danger, 'rgba(139,147,165,0.15)'];
+                                logLine('> nessuna corrispondenza nel dizionario (' + stats.tries + ' tentativi)', 'warn');
+                            }
+ 
+                            progressBar.style.width = '100%';
+                            progressPercentLabel.textContent = '100%';
+ 
+                            if (pieChart) pieChart.destroy();
+                            pieChart = new Chart(pieChartCanvas, {
+                                type: 'doughnut',
+                                data: {
+                                    labels: ['Completato', 'Rimanente'],
+                                    datasets: [{
+                                        data: pieData,
+                                        backgroundColor: pieColors,
+                                        borderWidth: 0
+                                    }]
+                                },
+                                options: baseChartOptions()
+                            });
+ 
+                            if (stats.status === "found") {
+                                resultBox.classList.remove('not-found');
+                                resultBox.innerHTML = `
+                                    <strong>✓ Password trovata:</strong> ${stats.password}<br>
+                                    Hash: ${stats.passwordc}<br>
+                                    Tentativi: ${stats.tries}<br>
+                                    Tempo totale: ${stats.total_time}s<br>
+                                    Tempo medio/tentativo: ${stats.avg_time}s
+                                `;
+                            } else {
+                                resultBox.classList.add('not-found');
+                                resultBox.innerHTML = `
+                                    <strong>✗ Password non trovata</strong><br>
+                                    Hash cercato: ${stats.passwordc}<br>
+                                    Tentativi: ${stats.tries}<br>
+                                    Tempo totale: ${stats.total_time}s<br>
+                                    Tempo medio/tentativo: ${stats.avg_time}s
+                                `;
+                            }
+ 
+                            if (crackChart) crackChart.destroy();
+                            crackChart = new Chart(crackChartCanvas, {
+                                type: 'line',
+                                data: {
+                                    labels: Array.from({ length: tries.length }, (_, i) => i + 1),
+                                    datasets: [{
+                                        label: 'Tempo medio per tentativo',
+                                        data: times,
+                                        borderColor: CHART_COLORS.accent,
+                                        backgroundColor: CHART_COLORS.accentDim,
+                                        borderWidth: 2,
+                                        fill: true,
+                                        tension: 0.3
+                                    }]
+                                },
+                                options: baseChartOptions({
+                                    scales: {
+                                        x: { ticks: { color: CHART_COLORS.text }, grid: { color: CHART_COLORS.grid } },
+                                        y: { ticks: { color: CHART_COLORS.text }, grid: { color: CHART_COLORS.grid } }
+                                    }
+                                })
+                            });
+ 
+                            document.querySelector('.box-graphic').style.display = 'flex';
+                            document.querySelector('.box-download').style.display = 'flex';
+                        }
+                    }
+                }
+ 
+                read();
+            });
+        }
+ 
+        read();
+    }).catch((error) => {
+        logLine('> errore: ' + error.message, 'warn');
+        resultBox.classList.add('not-found');
+        resultBox.innerHTML = `<strong>Errore durante il cracking!</strong><br>Dettagli: ${error.message}`;
+    }).finally(() => {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Avvia cracking';
+    });
+});
+ 
+// Download da endpoint Flask
+document.getElementById('downloadJSON').addEventListener('click', () => {
+    window.location.href = '/download/json';
+});
+ 
+document.getElementById('downloadCSV').addEventListener('click', () => {
+    window.location.href = '/download/csv';
+});
+ 
+    </script>
 </body>
 </html>
